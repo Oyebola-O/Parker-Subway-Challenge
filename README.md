@@ -1,107 +1,99 @@
-
 # Parker Subway Challenge
-This challenge is supposed to model the Subway based on the parker challenge [here](https://app7.greenhouse.io/tests/bb987a48650e0bf41265c903da54c4de?utm_medium=email&utm_source=TakeHomeTest). I tried to fit the description as much as I could and in cases where the challenge was ambigous, I did what made the most sense and documented my assumptions.
 
-## Running, Testing and Major Endpoints
+This challenge models a subway system, inspired by the Parker Challenge found [here](https://app7.greenhouse.io/tests/bb987a48650e0bf41265c903da54c4de?utm_medium=email&utm_source=TakeHomeTest). Ambiguities in the challenge are addressed with logical assumptions, which are documented for clarity.
 
-## Challenge 1
+## Prerequisites
+- Docker installed on the system.
+- Newman for API testing (`npm install -g newman`).
 
-POST /train-line
-
-POST http://localhost:3000/train-line
-{
-  "stations": ["14th", "23rd", "34th", "42nd", "50th", "59th"],
-  "name": "A"
-}
-
-    This endpoint creates a train line and sends a 201 acknowledging creation.
-    If the trainline is already in the database, it sends a response saying so.
-    Trainlines can only be created once.
+## Setup and Execution
+To start the app, execute:
+```
+docker-compose build && docker-compose up
+```
 
 
+## API Endpoints and Usage
 
+### Challenge 1: Train Line Management
 
-GET /http://localhost:3000/route?origin={origin}&destination={destination}
+#### Create a Train Line
+- **POST** `/train-line`
+  - Creates a new train line with predefined stations.
+  - Returns 201 on success or a message if the train line exists.
+  - Request body example:
+    ```json
+    {
+      "stations": ["14th", "23rd", "34th", "42nd", "50th", "59th"],
+      "name": "A"
+    }
+    ```
+  
+#### Retrieve the Shortest Route
+- **GET** `/route?origin={origin}&destination={destination}`
+  - Finds the shortest path between two stations.
+  - Requires valid `origin` and `destination` station parameters.
+  - `origin` and `destination` cannot be the same.
 
-    This ednpoint returns the shortest path between two stations, the trains needed to take at each station to travel the journey and the cost which is calculated by the unique train lines taken.
-    Both origin & destination must be valid stations
-    The origin cannot equal the destination 
+### Challenge 2: Fare and Card Management
 
-## Challenge 2
+#### Create a Train Line with Fare
+- **POST** `/train-line`
+  - Similar to Challenge 1 but allows an additional `fare` attribute.
+  - Defaults to $2.75 if `fare` is not provided.
+  - Request body example:
+    ```json
+    {
+      "stations": ["Canal", "Oyebola", "14th"],
+      "name": "O",
+      "fare": 3
+    }
+    ```
 
-POST http://localhost:3000/train-line
-{
-  "stations": ["Canal", "Oyebola", "14th"],
-  "name": "O",
-  "fare": 3
-}
+#### Manage a Transit Card
+- **POST** `/card`
+  - Creates or tops up a transit card.
+  - Request body example:
+    ```json
+    {
+      "card_number": "239294",
+      "amount": 10
+    }
+    ```
 
-    This endpoint is similar to the first. Only difference is you can add a fare. 
-    If no fare is added, a default fo $2.75 will be added
+#### Station Entry and Exit
+- **POST** `/station/:station/enter` and `/station/:station/exit`
+  - Manages the cardholder's station entry and exit.
+  - Charges are applied at the end of the trip based on the shortest path cost(The challenge wasn't very clear but this made the most sense).
+  - Request body example for both enter and exit:
+    ```json
+    {
+      "card_number": "239294"
+    }
+    ```
+  - The `:station` parameter in the URL should be replaced with the actual station name for both entry and exit endpoints.
+  - Users cannot enter if they owe or have no money.
+  - Every enter must have a matching exit at another station.
+  - Cards are charged based on the train lines taken in the shortest path between entry and exit station
 
-
-
-POST http://localhost:3000/card
-{
-  "card_number": "239294",
-  "amount": 10
-}
-
-
-    This endpoint creates a new card. If there is already one with the same card number, it tops it off with more money
-
-
-
-POST http://localhost:3000/station/:station/enter
-{
-    "card_number" : "239294"
-}
-
-
-POST http://localhost:3000/station/:station/exit
-{
-    "card_number" : "239294"
-}
-
-    These two are sister endpoints. They both take in a station to either enter or exit. 
-    The challenge wasn't clear about how to charge the card so the way it works is this:
-        - The card doesn't get charged until the end of the trip
-        - At the start of the trip, we make sure there is some money in the card. 
-        - If the user takes more trains than they have the balance to pay for, their balance becomes negative.
-        - For every starting trip, there must be a corresponding ending trip. If this is not fulfiled, the server will request for you to end the trip before you can start a new one
-        - The way trips are charged is based on the cost of the shortest path between your start and end destination
-
-### Testing
-In order to test, I've included a collection in `postman.json`. You can run it using 
-
+### Testing with Newman
+Run the Postman collection using Newman with the following command:
+```
 newman run postman.json --verbose
+```
 
-Feel free to play with the API and change the request as you feel. As long as you stick with the rules in the readme, it should not break. The worst case is you'll hit an error that I've most likely caught.
+## Assumptions and Decisions
+- User authentication is handled outside of this system.
+- Train lines, once created, are not expected to change frequently.
+- Train lines operate bidirectionally.
 
-### Here are some assumptions I've made
+## Solution Insights
+I've always wanted to try out graph databases so I saw this as an opportunity to use Neo4j for managing the subway's graph-based data structure, optimizing search operations for train lines.
 
-1. Authentication is implemented elsewhere in the system
-2. Only admins can add train lines and new train lines are not added often
-3. You can only add a train line once(Maybe delete/update is an endpoint to implement in the future)
-4. Train lines move both ways meaning, if I can take Train line 1 to ["Canal", "Houston", "Christopher", "14th"], I can also take it in reverse: ["14th", "Christopher", "Houston", "Canal"]
+## Potential Optimizations
+- Precalculate route distances to enable immediate O(1) time responses for frequently accessed endpoints.
 
-
-### As for my solution:
-I initally implemented the search but I've been wanting to learn more about graph databases so I decided to use neo4j to handle the train lines. It basically does this for me
-
-
-
-
-### Optimizations I could make:
-1. My BFS is searching based on stations, it could search based on train lines, e.g we look at the train lines from out origin & those from our destination and trace where they intersect but this could get complicated.
-
-2. I could precalculater all distances in my BFS, that way the server just returns a value instantly in O(1) time. This would make a lot of sense since this would probably be the most hit endpoint and train lines don't change often. Obviously we'd have to recalculate if a train went down or something similar.
-
-### Improvements I could make
-1. Write Jest Tests. I was going to write tests but I was starting to spend too much time on the challenge so I included a postman collection in the repo
-
-2. Some of my endpoints don't implement rollbacks in the case of failiure while interacting with the database. Meaning if execution fails, although unlikely, there is no rollback.
-
-3. I could've broken down the code a bit more, for example my routes are in the main file. I just didn't want to have too many files
-
-4. It would be much better to make some of these decisions if I knew what I was optimizing for. For this challenge, I went for code readablity, low execution time for endpoints, resonable error handling and 
+## Areas for Improvement
+- Implement Jest for comprehensive testing.
+- Establish database transaction rollbacks for operational reliability.
+- Further modularize the codebase for maintainability, for example, move my routes to a separate file, etc.
