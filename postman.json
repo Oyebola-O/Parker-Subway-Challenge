@@ -1,0 +1,222 @@
+{
+	"info": {
+		"_postman_id": "085ef719-bfb3-4ea1-99ce-9a2a53dadbe7",
+		"name": "subway",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4863280"
+	},
+	"item": [
+		{
+			"name": "hello world",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Train Line",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"stations\": [\"14th\", \"23rd\", \"34th\", \"42nd\", \"50th\", \"59th\"],\n  \"name\": \"A\"\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:3000/train-line",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"train-line"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Best Route",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/route?origin=14th&destination=34th",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"route"
+					],
+					"query": [
+						{
+							"key": "origin",
+							"value": "14th"
+						},
+						{
+							"key": "destination",
+							"value": "34th"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Train Line With Fare",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"stations\": [\"Canal\", \"Oyebola\", \"14th\"],\n  \"name\": \"O\",\n  \"fare\": 3\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:3000/train-line",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"train-line"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create or Deposit Card",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"card_number\": \"239294\",\n  \"amount\": 10\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:3000/card",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"card"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Enter Station",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"card_number\" : \"239294\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3000/station/:station/enter",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"station",
+						":station",
+						"enter"
+					],
+					"variable": [
+						{
+							"key": "station",
+							"value": "Canal"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Exit Station",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"card_number\" : \"239294\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3000/station/:station/exit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"station",
+						":station",
+						"exit"
+					],
+					"variable": [
+						{
+							"key": "station",
+							"value": "34th"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
