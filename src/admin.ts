@@ -49,7 +49,7 @@ class Admin {
       newTrip.origin = origin;
       await newTrip.save();
 
-      return [false, { message: `Successfull started trip from ${newTrip.origin.name} for ${card.card_number}, current balance ${card.balance}` }];
+      return [true, { message: `Successfull started trip from ${newTrip.origin.name} for ${card.card_number}, current balance ${card.balance}` }];
     } catch (error) {
       console.log(error);
       return [false, { message: "Failed to begin trip" }];

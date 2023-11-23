@@ -61,7 +61,7 @@ const start = async () => {
 
   const tryConnect = async () => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 10000));
 
       if(!AppDataSource.isInitialized) await AppDataSource.initialize();
       const neo4j = new Neo4jService();
